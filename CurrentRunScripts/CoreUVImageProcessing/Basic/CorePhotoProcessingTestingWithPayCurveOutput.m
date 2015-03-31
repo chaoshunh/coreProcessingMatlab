@@ -118,6 +118,7 @@ for x = 1:a
              %%loop through the edge array run the core lam counter
              %%function
              for v = 1:sampleSizeInPixels:c
+                 
              end
              
              
