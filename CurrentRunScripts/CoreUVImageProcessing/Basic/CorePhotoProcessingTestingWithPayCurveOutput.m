@@ -66,6 +66,7 @@ totalNumberOfPixels = 0;
 totalFaciesSum = zeros(length(UVScreens), 1);
 RGBLCurvesAll = zeros(1,5);
 PayCurveAll = zeros(1,2);
+LamCurveAll = zeros(1,4); %output curve for laminations
 %%LOOP Through Each Img
 for x = 1:a
     if(a == 1)
@@ -109,6 +110,17 @@ for x = 1:a
              se = strel('line', 40, 0);
              dilatedEdges = imdilate(luminosity_Edges, se);
              disp(threshOut);
+             
+             %%put bedding curve analysis here
+             %%set sample interval
+             sampleInterval = 1; %ft
+             sampleSizeInPixels = round(1/ftPerPix);
+             %%loop through the edge array run the core lam counter
+             %%function
+             for v = 1:sampleSizeInPixels:c
+             end
+             
+             
              %[boundaries, Labels] = bwboundaries(luminosity_Edges);
              %boundariesOutput = label2rgb(Labels, @jet, [.5 .5 .5]);
              clear tempLum lumDepth;
