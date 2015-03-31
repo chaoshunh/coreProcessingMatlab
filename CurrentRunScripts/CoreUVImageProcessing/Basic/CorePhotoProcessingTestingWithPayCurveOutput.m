@@ -66,7 +66,7 @@ totalNumberOfPixels = 0;
 totalFaciesSum = zeros(length(UVScreens), 1);
 RGBLCurvesAll = zeros(1,5);
 PayCurveAll = zeros(1,2);
-LamCurveAll = zeros(1,4); %output curve for laminations
+LamCurveAll = zeros(1,5); %output curve for laminations
 %%LOOP Through Each Img
 for x = 1:a
     if(a == 1)
@@ -117,10 +117,21 @@ for x = 1:a
              sampleSizeInPixels = round(1/ftPerPix);
              %%loop through the edge array run the core lam counter
              %%function
+             counter = 0;
+             LamCurve = zeros(1,5);
              for v = 1:sampleSizeInPixels:c
-                 
+                 counter = counter + 1;
+                 [  LamCurve(counter, 2), thickness_dist, LamCurve(counter, 3), LamCurve(counter, 4), LamCurve(counter, 5) ] = coreLamCounter( luminosity_Edges, dilatedEdges(v:sampleSizeInPixels,: ));
+                 LamCurve(counter, 2) = v * ftPerPix + TopDepth;
              end
-             
+             if LamCurveAll(1,1) ~=0
+                  LamCurveAll = vertcat( LamCurveAll, LamCurve);
+                [~, LamCurveAllIdx ]= sort( LamCurveAll(:,1));
+                 LamCurveAll(:,1) =  LamCurveAll( LamCurveAllIdx,1);
+                 LamCurveAll(:,2) =  LamCurveAll( LamCurveAllIdx,2);
+             else
+                  LamCurveAll =  LamCurve;
+             end
              
              %[boundaries, Labels] = bwboundaries(luminosity_Edges);
              %boundariesOutput = label2rgb(Labels, @jet, [.5 .5 .5]);
