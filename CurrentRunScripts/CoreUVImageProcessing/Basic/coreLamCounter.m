@@ -1,4 +1,4 @@
-function [ avgLamCount, thickness_dist, meanThickness, maxThickness, minThickness ] = coreLamCounter( luminosity_Edges, dilatedEdges )
+function [ avgLamCount, thickness_dist, meanThickness, maxThickness, minThickness ] = coreLamCounter( luminosity_Edges, dilatedEdges, luminosity , ftPerPix)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 [a,b] = size(luminosity_Edges);
@@ -22,7 +22,10 @@ index = zeros(1,1);
 c = length(row);
 for x  = 1:b
     screen = column(:,1) == x;
-    index(screen,x) = row(screen,1);
+    intermediate = row(screen,1);
+    
+    %index(:,x) = row(screen,1);
+    index(1:size(intermediate),x) = intermediate;
 end
 %Get an index of the locations of the "1s" in the diff array using '[row column] = find' and take a
 %diff of the index to get the thickness of the "beds" into a table
