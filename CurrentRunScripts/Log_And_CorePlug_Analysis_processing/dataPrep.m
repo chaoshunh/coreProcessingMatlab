@@ -1,10 +1,34 @@
 function [ faciesDataArray, numberOfFaciesCodes,MD_Core,Facies_CoreDepth] = dataPrep( )
 %UNTITLED6 Summary of this function goes here
 %   Detailed explanation goes here
-
-[~,~,~,SAMPLE_ID,DEPTH_CORE,CKHA,~,~,CPOR,SOC,SWC,CDEN,~,CPOR_HUM,SOC_HUM,SWC_HUM,CDEN_HUM,~,~,~,~,~,~,~,~] = conventionalPlugDataImport('BasicCorePlugInputs.txt');
-[MD_Shifted,Facies_LogDepth,MD_Core,Facies_CoreDepth] = coreDescriptionImport('CoreDescriptionInputs.txt');
-[MD_Log,Gamma,RHOB,SP,XNPHIS,PEF,RD,RS,GammaNOUr,GammaK,GammaTh,GammaU,XMINV,XMNOR] = importStandardLogsv2('BasicLogInputs.txt');
+plugFile = uigetfile('*.txt', 'Select Core Plug File');
+%[~,~,~,SAMPLE_ID,DEPTH_CORE,CKHA,~,~,CPOR,SOC,SWC,CDEN,~,CPOR_HUM,SOC_HUM,SWC_HUM,CDEN_HUM,~,~,~,~,~,~,~,~] = conventionalPlugDataImport(plugFile);
+plugdata = simpleTabImport(plugFile);
+for x = 1:size(plugdata,2)
+    if strcmpi(plugdata,'CKHA')
+        SWC = plugdata(4:size(plugdata,1),x);
+        SWC = str2double(SWC);
+    elseif strcmpi(plugdata,'DEPTH_CORE')
+        DEPTH_CORE = plugdata(4:size(plugdata,1),x);
+        DEPTH_CORE = str2double(DEPTH_CORE);
+    elseif strcmpi(plugdata,'SOC') 
+        SOC = plugdata(4:size(plugdata,1),x);
+        SOC = str2double(SOC);
+    elseif strcmpi(plugdata,'CDEN') 
+        CDEN = plugdata(4:size(plugdata,1),x);
+        CDEN = str2double(CDEN);
+    elseif strcmpi(plugdata,'CPOR') 
+        CPOR = plugdata(4:size(plugdata,1),x);
+        CPOR = str2double(CPOR);
+    elseif strcmpi(plugdata,'SWC')
+        SWC = plugdata(4:size(plugdata,1),x);
+        SWC = str2double(SWC);
+    end
+end
+coreDescriptionFile = uigetfile('*.txt', 'Select Core Description File');
+[MD_Shifted,Facies_LogDepth,MD_Core,Facies_CoreDepth] = coreDescriptionImport(coreDescriptionFile);
+logFile = uigetfile('*.txt', 'Select Standard Log Inputs File');
+[MD_Log,Gamma,RHOB,SP,XNPHIS,PEF,RD,RS,GammaNOUr,GammaK,GammaTh,GammaU,XMINV,XMNOR] = importStandardLogsv2(logFile);
 numberOfFaciesCodes = max(Facies_CoreDepth) + 1;
 faciesDataArray = faciesData.empty(numberOfFaciesCodes,0);
 excludeNumber = 6;
@@ -202,7 +226,8 @@ end
 
 %%Add luminosity info to array(s)
     %load luminosity
-    load('luminosityVar.mat')
+    luminosityVariableFile = uigetfile('*.mat', 'Select Luminosity Var Inputs File');
+    load(luminosityVariableFile);
     %Convert from core to log depth
     found = false;
     for x = 1:length(AvgLuminosity)

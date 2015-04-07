@@ -6,7 +6,7 @@ clear all;
     %%full res samples per ft
     fullResSamplesPerFt = 2000;
     % Well Name
-    wellName = '363X-16R';
+    wellName = '322X-24R';
     %%Conversion
     samplingInterval = round(fullResSamplesPerFt / samplesPerFt);
     %UV or PL
@@ -56,9 +56,17 @@ clear all;
     %image log, depth shifted to core depth
     
 %Select Images to Process
-images = uigetfile('.png', 'Select Photos', 'MultiSelect', 'on');
+images = uigetfile('*.png', 'Select Photos', 'MultiSelect', 'on');
+images = sort(images);
+for x = 1:size(images,2);
+    
+    metadata{1,x} = strrep(images{1,x},'.png','.csv');
+    metadata{1,x} = strrep(metadata{1,x},'ExposureAdjusted','');
+    metadata{1,x} = strrep(metadata{1,x},'.tif','.csv');
+end
+badCoreFile = uigetfile('*.txt', 'Select Bad Core Flag File');
 %%Load image(s) & Metadata
-metadata = uigetfile('.csv', 'Select Metadata', 'MultiSelect', 'on');
+%metadata = uigetfile('.csv', 'Select Metadata', 'MultiSelect', 'on');
 AvgLuminosity = zeros(1,2);
 [~,a] = size(images);
 [~,b] = size(metadata);
@@ -173,7 +181,7 @@ for x = 1:a
      %[ processedImage, luminosity, BadCore ] = BadCoreRemoveV1( processedImage, luminosity, 'BadCoreDesc.txt' );
         %bad core RGB color
         %load the bad Core flag 
-      [ BadCore ] = simpleLoadBadCore( 'BadCoreDesc.txt', ftPerPix, TopDepth);    
+      [ BadCore ] = simpleLoadBadCore( badCoreFile, ftPerPix, TopDepth);    
     %%UV or PL?     
      if isUV
          faciesSum = zeros(length(UVScreens), 1);
@@ -399,6 +407,8 @@ for x = 1:length(LamCurveAll)
     fprintf(fid, '%s %.5f %.5f %.5f %.5f %.5f\n', wellName, LamCurveAll(x,1), LamCurveAll(x,2),LamCurveAll(x,3), LamCurveAll(x,4), LamCurveAll(x,5));
 end
 fclose(fid);
+filename = strcat('luminosityVar',wellName,'.mat');
+save(filename, 'luminosity');
 %%TODO OUTPUTS
 
 %RGB Histograms for each visually described facies

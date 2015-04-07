@@ -18,7 +18,7 @@
 clear all;
 
 %%SET folder and wellname
-wellName = '363X-16R';
+wellName = inputdlg('Enter Well Name','WellName');
 folderName = 'outputs';
 mkdir(folderName);
 

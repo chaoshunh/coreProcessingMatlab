@@ -3,6 +3,9 @@ clear all
 
 %%Load resisitivity pad info
 ResPadFilename = uigetfile('*.txt', 'Select Pad Resistivity File');
+%Load Luminosity Cuttoffs inputs
+luminosityInputs = uigetfile('*.txt', 'Select luminosity cuttoffs input');
+lumCutoffs = simpleTabImport(luminosityInputs);
 %load iPoint shifts info
 try
 shiftsFile = uigetfile('*.csv', 'Select ipoint Core Shifts Info .csv');
@@ -47,6 +50,9 @@ end
 %load the metadata for the images
 %create metadata strings
 t = length(images);
+
+%%Total Image data
+allPlot = zeros(1,2);
 for x = 1:t
     
     metadata{1,x} = strrep(images{1,x},'.png','.csv');
@@ -125,10 +131,13 @@ lastPixelShift = 0;
 for y = 1:count  
 %%Filter the core image data to the desired interval
 %start of shift
-shiftStartPixels = round((imageToLogShifts(y,1) - TopDepth) / ftPerPix);
+shiftStartPixels = round(( imageToLogShifts(y,1) -  TopDepth) / ftPerPix);
 if shiftStartPixels <= 0
     startCoreDepth = TopDepth;
     shiftStartPixels = 1;
+elseif (shiftStartPixels > size(imageData,1)) && (y == 1)
+   startCoreDepth = TopDepth;
+   shiftStartPixels = 1; 
 else
     startCoreDepth = imageToLogShifts(y,1);
 end
@@ -185,7 +194,16 @@ elseif luminositySize < resistivitySize
 end
 
 %QC: Plot image resistivity vs. luminosity index
-scatter(luminosity(:,round(size(luminosity,2)/2)), selectedImageLogData(:,2));
+%scatter(luminosity(:,round(size(luminosity,2)/2)), selectedImageLogData(:,2));
+clear currentPlot;
+currentPlot(:,1) = double(luminosity(:,round(size(luminosity,2)/2)));
+currentPlot(:,2) = selectedImageLogData(:,2);
+
+if allPlot(1,1) == 0
+    allPlot = currentPlot;
+else
+    allPlot = vertcat(currentPlot, allPlot);
+end
 %accumulate the results into results arrays for unified plotting
 
 end
@@ -198,4 +216,6 @@ end
 
 %make a scatterplot of all the data to see if there is any relationship,
 %plus make histograms for each category
-
+[  luminosityFilteredIndicies ] = filterOnLuminosity( allPlot(:,1), lumCutoffs );
+%scatter(allPlot(:,1), allPlot(:,2));
+%scatter(allPlot(luminosityFilteredIndicies(:,2),1), allPlot(luminosityFilteredIndicies(:,2),2));
