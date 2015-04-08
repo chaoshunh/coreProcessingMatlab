@@ -60,7 +60,7 @@ hold all;
     saveas(gcf, figurename, 'jpg');
     close(gcf);
     for x = 1:numberOfFaciesCodes
-            
+        if x ~= excludeNumber    
         histogram(faciesDataArray(x,1).logData(:,14), 50);
         titleStr = strcat('GR (no U) Histogram for facies code: ', int2str(x - 1));
         title(titleStr);
@@ -70,6 +70,7 @@ hold all;
         saveas(gcf, figurename, 'fig');
         saveas(gcf, figurename, 'jpg');
         close(gcf);
+        end
             
     end
  %facies uranium histogram(s)
@@ -88,7 +89,7 @@ hold all;
     saveas(gcf, figurename, 'jpg');
     close(gcf);
     for x = 1:numberOfFaciesCodes
-            
+        if x ~= excludeNumber    
         histogram(faciesDataArray(x,1).logData(:,13), 50);
         titleStr = strcat('Uranium Histogram for facies code: ', int2str(x - 1));
         title(titleStr);
@@ -98,6 +99,7 @@ hold all;
         saveas(gcf, figurename, 'fig');
         saveas(gcf, figurename, 'jpg');
         close(gcf);
+        end
             
     end
     
@@ -117,7 +119,7 @@ hold all;
     saveas(gcf, figurename, 'jpg');
     close(gcf);
     for x = 1:numberOfFaciesCodes
-            
+        if x ~= excludeNumber    
         histogram(faciesDataArray(x,1).logData(:,12), 50);
         titleStr = strcat('Thorium Histogram for facies code: ', int2str(x - 1));
         title(titleStr);
@@ -127,7 +129,7 @@ hold all;
         saveas(gcf, figurename, 'fig');
         saveas(gcf, figurename, 'jpg');
         close(gcf);
-            
+        end   
     end
      %facies potassium histogram(s)
     hold all;
@@ -145,7 +147,7 @@ hold all;
     saveas(gcf, figurename, 'jpg');
     close(gcf);
     for x = 1:numberOfFaciesCodes
-            
+        if x ~= excludeNumber    
         histogram(faciesDataArray(x,1).logData(:,11), 50);
         titleStr = strcat('Postassium Histogram for facies code: ', int2str(x - 1));
         title(titleStr);
@@ -155,7 +157,7 @@ hold all;
         saveas(gcf, figurename, 'fig');
         saveas(gcf, figurename, 'jpg');
         close(gcf);
-            
+        end   
     end
 end
 

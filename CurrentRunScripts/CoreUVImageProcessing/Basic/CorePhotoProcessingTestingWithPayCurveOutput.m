@@ -408,7 +408,7 @@ for x = 1:length(LamCurveAll)
 end
 fclose(fid);
 filename = strcat('luminosityVar',wellName,'.mat');
-save(filename, 'luminosity');
+save(filename, 'AvgLuminosity');
 %%TODO OUTPUTS
 
 %RGB Histograms for each visually described facies

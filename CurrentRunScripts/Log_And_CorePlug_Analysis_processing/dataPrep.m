@@ -5,22 +5,22 @@ plugFile = uigetfile('*.txt', 'Select Core Plug File');
 %[~,~,~,SAMPLE_ID,DEPTH_CORE,CKHA,~,~,CPOR,SOC,SWC,CDEN,~,CPOR_HUM,SOC_HUM,SWC_HUM,CDEN_HUM,~,~,~,~,~,~,~,~] = conventionalPlugDataImport(plugFile);
 plugdata = simpleTabImport(plugFile);
 for x = 1:size(plugdata,2)
-    if strcmpi(plugdata,'CKHA')
-        SWC = plugdata(4:size(plugdata,1),x);
-        SWC = str2double(SWC);
-    elseif strcmpi(plugdata,'DEPTH_CORE')
+    if strcmpi(plugdata{1,x},'CKHA')
+        CKHA = plugdata(4:size(plugdata,1),x);
+        CKHA = str2double(CKHA);
+    elseif strcmpi(plugdata{1,x},'DEPTH_CORE')
         DEPTH_CORE = plugdata(4:size(plugdata,1),x);
         DEPTH_CORE = str2double(DEPTH_CORE);
-    elseif strcmpi(plugdata,'SOC') 
+    elseif strcmpi(plugdata{1,x},'SOC') 
         SOC = plugdata(4:size(plugdata,1),x);
         SOC = str2double(SOC);
-    elseif strcmpi(plugdata,'CDEN') 
+    elseif strcmpi(plugdata{1,x},'CDEN') 
         CDEN = plugdata(4:size(plugdata,1),x);
         CDEN = str2double(CDEN);
-    elseif strcmpi(plugdata,'CPOR') 
+    elseif strcmpi(plugdata{1,x},'CPOR') 
         CPOR = plugdata(4:size(plugdata,1),x);
         CPOR = str2double(CPOR);
-    elseif strcmpi(plugdata,'SWC')
+    elseif strcmpi(plugdata{1,x},'SWC')
         SWC = plugdata(4:size(plugdata,1),x);
         SWC = str2double(SWC);
     end
@@ -29,9 +29,14 @@ coreDescriptionFile = uigetfile('*.txt', 'Select Core Description File');
 [MD_Shifted,Facies_LogDepth,MD_Core,Facies_CoreDepth] = coreDescriptionImport(coreDescriptionFile);
 logFile = uigetfile('*.txt', 'Select Standard Log Inputs File');
 [MD_Log,Gamma,RHOB,SP,XNPHIS,PEF,RD,RS,GammaNOUr,GammaK,GammaTh,GammaU,XMINV,XMNOR] = importStandardLogsv2(logFile);
+for x = 1:size(Facies_CoreDepth)
+    if Facies_CoreDepth(x,1) == 9
+        Facies_CoreDepth(x,1) = 6;
+    end
+end
 numberOfFaciesCodes = max(Facies_CoreDepth) + 1;
 faciesDataArray = faciesData.empty(numberOfFaciesCodes,0);
-excludeNumber = 6;
+excludeNumber = 7;
 count = 0;
 for x = 1:numberOfFaciesCodes
     faciesDataArray(x,1) = faciesData();
@@ -156,20 +161,45 @@ for x = 1:length(DEPTH_CORE)
         end
 end
 clear currentDepth descriptionMax descriptionMin testDepth testDepthMinus x y faciesCode a b
+%Select iPoint Shifts File
+try
+shiftsFile = uigetfile('*.csv', 'Select ipoint Core Shifts Info .csv');
+shifts = simpleCSVImport(shiftsFile);
+[a,~] = size(shifts);
+shifts = shifts(5:a,:);
+shifts = str2double(shifts);
+clear a;
+catch err
+    warndlg('Warning! shifts file not loaded, unrecognized format.');
+    
+end
 
+
+%%363X-16R Core Shifts
+for x = 1:size(shifts,1)
+    if x ~= size(shifts,1)
+        if MD_Core(1,1) <= shifts(1,1)
+            coreShifts(x,1) = coreShift(MD_Core(1,1),shifts(x+1,1), shifts(x,2));
+        else
+            coreShifts(x,1) = coreShift(shifts(x,1),shifts(x+1,1), shifts(x,2));
+        end
+    else
+        coreShifts(x,1) = coreShift(shifts(x,1),MD_Core(size(MD_Core,1),1), shifts(x,2));
+    end
+end
 %%Make shifted core plug vars
-coreShifts(1,1) = coreShift(8565.0,8568.0, 6.428);
-coreShifts(2,1) = coreShift(8584.0,8585.8, 6.428);
-coreShifts(3,1) = coreShift(8588.3,8608, 7.2);
-coreShifts(4,1) = coreShift(8608.0,8611.0, 7.2);
-coreShifts(5,1) = coreShift(8613.0,8643.0, 7.2);
-coreShifts(6,1) = coreShift(8643.0,8671.4, 7.2);
-coreShifts(7,1) = coreShift(8673.0,8699.1, 5.6);
-coreShifts(8,1) = coreShift(8980,8980.2, 7.77);
-coreShifts(9,1) = coreShift(8981.0,9010.2, 7.77);
-coreShifts(10,1) = coreShift(9011.0,9039.9, 7.77);
-coreShifts(11,1) = coreShift(9041.0,9071, 7.77);
-coreShifts(12,1) = coreShift(9071.0,9101.8, 7.77);
+% coreShifts(1,1) = coreShift(8565.0,8568.0, 6.428);
+% coreShifts(2,1) = coreShift(8584.0,8585.8, 6.428);
+% coreShifts(3,1) = coreShift(8588.3,8608, 7.2);
+% coreShifts(4,1) = coreShift(8608.0,8611.0, 7.2);
+% coreShifts(5,1) = coreShift(8613.0,8643.0, 7.2);
+% coreShifts(6,1) = coreShift(8643.0,8671.4, 7.2);
+% coreShifts(7,1) = coreShift(8673.0,8699.1, 5.6);
+% coreShifts(8,1) = coreShift(8980,8980.2, 7.77);
+% coreShifts(9,1) = coreShift(8981.0,9010.2, 7.77);
+% coreShifts(10,1) = coreShift(9011.0,9039.9, 7.77);
+% coreShifts(11,1) = coreShift(9041.0,9071, 7.77);
+% coreShifts(12,1) = coreShift(9071.0,9101.8, 7.77);
 
 for x = 1:length(faciesDataArray)
     [a,~] = size(faciesDataArray(x,1).plugData);

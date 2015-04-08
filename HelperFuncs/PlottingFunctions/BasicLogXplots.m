@@ -90,12 +90,15 @@ close(gcf);
 hold off;
 for x = 1:numberOfFaciesCodes
     %createPE_DensityXPLOT(faciesDataArray(x,1).logData(:,6), faciesDataArray(x,1).logData(:,3));
-    faciesDataArray(x,1).logData(:,11),faciesDataArray(x,1).logData(:,12);
+    if x ~= excludeNumber
+    plot(faciesDataArray(x,1).logData(:,11),faciesDataArray(x,1).logData(:,12),'DisplayName',char(x),'Marker','+','LineStyle','none');
+    %faciesDataArray(x,1).logData(:,11),faciesDataArray(x,1).logData(:,12);
     %plot(faciesDataArray(x,1).logData(:,11),faciesDataArray(x,1).logData(:,12),'DisplayName',char(x),'Marker','+','LineStyle','none');
     figurename = strcat(folderName, '\', wellName, '_Potassium_Th_Xplot_faciesCode_', int2str(x - 1));
     saveas(gcf, figurename, 'fig');
     saveas(gcf, figurename, 'jpg');
     close(gcf);
+    end
 end
 %pota/PE xplot
 hold all;
@@ -125,11 +128,13 @@ hold off;
 for x = 1:numberOfFaciesCodes
     %createPE_DensityXPLOT(faciesDataArray(x,1).logData(:,6), faciesDataArray(x,1).logData(:,3));
     %plot(faciesDataArray(x,1).logData(:,11),faciesDataArray(x,1).logData(:,6),'DisplayName',char(x),'Marker','+','LineStyle','none');
+    if x ~= excludeNumber
     makePE_PotaXPLOT(faciesDataArray(x,1).logData(:,11),faciesDataArray(x,1).logData(:,6));
     figurename = strcat(folderName, '\', wellName, '_Potassium_PE_Xplot_faciesCode_', int2str(x - 1));
     saveas(gcf, figurename, 'fig');
     saveas(gcf, figurename, 'jpg');
     close(gcf);
+    end
 end
 %pe and thor/pota ratio xplot
 % hold all;
@@ -201,6 +206,7 @@ close(gcf);
 hold off;
 for x = 1:numberOfFaciesCodes
     %createPE_DensityXPLOT(faciesDataArray(x,1).logData(:,6), faciesDataArray(x,1).logData(:,3));
+    if x ~= excludeNumber
             density_por = (faciesDataArray(x,1).logData(:,3) - 2.65)/-1.65;
             porosity = sqrt((density_por.^2 + faciesDataArray(x,1).logData(:,5).^2)/2);
             createPickettPlot(faciesDataArray(x,1).logData(:,7),porosity);
@@ -210,6 +216,7 @@ for x = 1:numberOfFaciesCodes
     saveas(gcf, figurename, 'fig');
     saveas(gcf, figurename, 'jpg');
     close(gcf);
+    end
 end
 
 %%

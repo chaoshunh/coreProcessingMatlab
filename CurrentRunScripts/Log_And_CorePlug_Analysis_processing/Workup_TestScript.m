@@ -19,6 +19,7 @@ clear all;
 
 %%SET folder and wellname
 wellName = inputdlg('Enter Well Name','WellName');
+wellName = wellName{1,1};
 folderName = 'outputs';
 mkdir(folderName);
 
@@ -36,9 +37,10 @@ faciesCodeCell{3,1} = 'Sandstone';
 faciesCodeCell{4,1} = 'Silt';
 faciesCodeCell{5,1} = 'Shale/Ms';
 faciesCodeCell{6,1} = 'Ash';
+faciesCodeCell{7,1} = 'SiltyMS';
 %%This is a facies code that should be excluded (e.g. no core recovery
 %%code)
-excludeNumber = 6;
+excludeNumber = 7;
 
 count = 0;
 for x = 1:numberOfFaciesCodes
@@ -120,7 +122,7 @@ basicLogHistograms( faciesDataArray, folderName, wellName, excludeNumber, facies
     %Log porosity vs plug porosity x-plot
 PlugAndLogXPlots( faciesDataArray, folderName, wellName, excludeNumber, faciesCodeCell, numberOfFaciesCodes ) ;  
 %%Make summary tables
-netFacies = zeros(6,1);
+netFacies = zeros(8,1);
     %Show total net ft of facies
     for x = 1:(length(MD_Core)-1)
         sizeOfBed = MD_Core(x+1,1) - MD_Core(x,1);
