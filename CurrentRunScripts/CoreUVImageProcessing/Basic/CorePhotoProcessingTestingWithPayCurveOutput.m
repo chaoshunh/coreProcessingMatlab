@@ -6,7 +6,7 @@ clear all;
     %%full res samples per ft
     fullResSamplesPerFt = 2000;
     % Well Name
-    wellName = '322X-24R';
+    wellName = '363X-16R';
     %%Conversion
     samplingInterval = round(fullResSamplesPerFt / samplesPerFt);
     %UV or PL
@@ -56,17 +56,9 @@ clear all;
     %image log, depth shifted to core depth
     
 %Select Images to Process
-images = uigetfile('*.png', 'Select Photos', 'MultiSelect', 'on');
-images = sort(images);
-for x = 1:size(images,2);
-    
-    metadata{1,x} = strrep(images{1,x},'.png','.csv');
-    metadata{1,x} = strrep(metadata{1,x},'ExposureAdjusted','');
-    metadata{1,x} = strrep(metadata{1,x},'.tif','.csv');
-end
-badCoreFile = uigetfile('*.txt', 'Select Bad Core Flag File');
+images = uigetfile('.png', 'Select Photos', 'MultiSelect', 'on');
 %%Load image(s) & Metadata
-%metadata = uigetfile('.csv', 'Select Metadata', 'MultiSelect', 'on');
+metadata = uigetfile('.csv', 'Select Metadata', 'MultiSelect', 'on');
 AvgLuminosity = zeros(1,2);
 [~,a] = size(images);
 [~,b] = size(metadata);
@@ -115,39 +107,30 @@ for x = 1:a
              imageData = uint8(imageData);
              %%Edge Detection
              [luminosity_Edges, threshOut] = edge(luminosity, 'Canny' );
-             se = strel('line', 50, 0);
+             se = strel('line', 40, 0);
              dilatedEdges = imdilate(luminosity_Edges, se);
              disp(threshOut);
              
              %%put bedding curve analysis here
              %%set sample interval
-             sampleInterval = 0.5; %ft
-             sampleSizeInPixels = round( sampleInterval/ftPerPix);
+             sampleInterval = 1; %ft
+             sampleSizeInPixels = round(1/ftPerPix);
              %%loop through the edge array run the core lam counter
              %%function
              counter = 0;
              LamCurve = zeros(1,5);
              for v = 1:sampleSizeInPixels:c
-                 if (v+sampleSizeInPixels) <= c
                  counter = counter + 1;
-                 [  LamCurve(counter, 2), thickness_dist, LamCurve(counter, 3), LamCurve(counter, 4), LamCurve(counter, 5) ] = coreLamCounter( luminosity_Edges(v: v + sampleSizeInPixels,: ), dilatedEdges(v:v + sampleSizeInPixels,: ),luminosity(v:v + sampleSizeInPixels,: ), ftPerPix);
-                 LamCurve(counter, 1) = v * (sampleInterval * 2) * ftPerPix + TopDepth;
-                 end
+                 [  LamCurve(counter, 2), thickness_dist, LamCurve(counter, 3), LamCurve(counter, 4), LamCurve(counter, 5) ] = coreLamCounter( luminosity_Edges, dilatedEdges(v:sampleSizeInPixels,: ));
+                 LamCurve(counter, 2) = v * ftPerPix + TopDepth;
              end
              if LamCurveAll(1,1) ~=0
-                 if LamCurve(1,1) ~= 0
                   LamCurveAll = vertcat( LamCurveAll, LamCurve);
                 [~, LamCurveAllIdx ]= sort( LamCurveAll(:,1));
                  LamCurveAll(:,1) =  LamCurveAll( LamCurveAllIdx,1);
                  LamCurveAll(:,2) =  LamCurveAll( LamCurveAllIdx,2);
-                 LamCurveAll(:,3) =  LamCurveAll( LamCurveAllIdx,3);
-                 LamCurveAll(:,4) =  LamCurveAll( LamCurveAllIdx,4);
-                 LamCurveAll(:,5) =  LamCurveAll( LamCurveAllIdx,5);
-                 end
              else
-                 if LamCurve(1,1) ~= 0
                   LamCurveAll =  LamCurve;
-                 end
              end
              
              %[boundaries, Labels] = bwboundaries(luminosity_Edges);
@@ -181,7 +164,7 @@ for x = 1:a
      %[ processedImage, luminosity, BadCore ] = BadCoreRemoveV1( processedImage, luminosity, 'BadCoreDesc.txt' );
         %bad core RGB color
         %load the bad Core flag 
-      [ BadCore ] = simpleLoadBadCore( badCoreFile, ftPerPix, TopDepth);    
+      [ BadCore ] = simpleLoadBadCore( 'BadCoreDesc.txt', ftPerPix, TopDepth);    
     %%UV or PL?     
      if isUV
          faciesSum = zeros(length(UVScreens), 1);
@@ -397,18 +380,6 @@ for x = 1:length(PayCurveAll)
     fprintf(fid, '%s %f %1.f\n', wellName, PayCurveAll(x,1), PayCurveAll(x,2));
 end
 fclose(fid);
-
-%%Output lamination curves
-filename = strcat('lamCurves',wellName,'.txt');
-fid = fopen(filename, 'w');
-fprintf(fid, 'VERSION 1\nBEGIN HEADER\nWell Name\nMD\nLamCountPerFt\nMeanLamThickness\nMaxLamThickness\nMinLamThickness\nEND HEADER\n');
-
-for x = 1:length(LamCurveAll)
-    fprintf(fid, '%s %.5f %.5f %.5f %.5f %.5f\n', wellName, LamCurveAll(x,1), LamCurveAll(x,2),LamCurveAll(x,3), LamCurveAll(x,4), LamCurveAll(x,5));
-end
-fclose(fid);
-filename = strcat('luminosityVar',wellName,'.mat');
-save(filename, 'AvgLuminosity');
 %%TODO OUTPUTS
 
 %RGB Histograms for each visually described facies
